@@ -3,33 +3,96 @@ document.addEventListener('DOMContentLoaded', () => {
     const revealBtn = document.getElementById('reveal-location-btn');
     const locationCard = document.getElementById('location-reveal');
     const closeBtn = document.getElementById('close-location-btn');
-    const card = document.querySelector('.card.glass-effect');
 
+    // ==========================================
     // Mini Game: Runaway Button
+    // Works on BOTH desktop (mouseover) and mobile (touchstart/click)
+    // ==========================================
     let runawayCount = 0;
     const maxRunaway = 5;
+    let gameComplete = false;
+    const originalText = revealBtn.innerText;
 
-    revealBtn.addEventListener('mouseover', (e) => {
+    function runAway() {
+        if (gameComplete) return;
+
         if (runawayCount < maxRunaway) {
-            const moveX = (Math.random() - 0.5) * 500;
-            const moveY = (Math.random() - 0.5) * 500;
-            revealBtn.style.transform = `translate(${moveX}px, ${moveY}px)`;
+            // Move to a random position within the viewport
+            const viewW = window.innerWidth;
+            const viewH = window.innerHeight;
+            const btnW = revealBtn.offsetWidth;
+            const btnH = revealBtn.offsetHeight;
+
+            // Keep within safe bounds
+            const maxX = viewW - btnW - 20;
+            const maxY = viewH - btnH - 20;
+
+            const randX = Math.floor(Math.random() * maxX);
+            const randY = Math.floor(Math.random() * maxY);
+
+            revealBtn.style.position = 'fixed';
+            revealBtn.style.left = randX + 'px';
+            revealBtn.style.top = randY + 'px';
+            revealBtn.style.transform = 'none';
+            revealBtn.style.zIndex = '9999';
+
             runawayCount++;
-        } else {
-            revealBtn.style.transform = 'translate(0, 0)';
-            revealBtn.innerText = "Giờ bấm đượt ròi đó! 🤣";
-            revealBtn.style.cursor = 'pointer';
+
+            // Show teasing text
+            const messages = [
+                "Hehe, bắt được hông? 😜",
+                "Nhanh tay lên nào! 🏃‍♀️",
+                "Gần được rồi...! 💨",
+                "Chậm quá đi! 🐢",
+                "Cố lên nào vợ ơi! 💪"
+            ];
+            revealBtn.innerText = messages[runawayCount - 1] || "Hehe 😜";
+        }
+
+        // Check if game is now complete
+        if (runawayCount >= maxRunaway) {
+            gameComplete = true;
+            revealBtn.style.position = 'static';
+            revealBtn.style.left = '';
+            revealBtn.style.top = '';
+            revealBtn.style.transform = '';
+            revealBtn.style.zIndex = '';
+            revealBtn.innerText = "Giờ bấm được rồi đó vợ! 🤣❤️";
+            revealBtn.classList.add('caught');
+        }
+    }
+
+    // Desktop: mouseover triggers runaway
+    revealBtn.addEventListener('mouseover', (e) => {
+        if (!gameComplete) {
+            runAway();
         }
     });
 
-    revealBtn.addEventListener('click', (e) => {
-        if (runawayCount < maxRunaway) {
+    // Mobile: touchstart triggers runaway (before click)
+    revealBtn.addEventListener('touchstart', (e) => {
+        if (!gameComplete) {
             e.preventDefault();
+            runAway();
+        }
+    }, { passive: false });
+
+    // Click: only works after game is complete
+    revealBtn.addEventListener('click', (e) => {
+        if (!gameComplete) {
+            e.preventDefault();
+            e.stopPropagation();
+            // On desktop click without hover (rare), also run away
+            runAway();
             return;
         }
+
+        // Reveal location
         locationCard.classList.remove('hidden');
-        locationCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        console.log("Location revealed! ❤️");
+        locationCard.style.display = 'flex';
+        setTimeout(() => {
+            locationCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }, 100);
     });
 
     closeBtn.addEventListener('click', () => {
@@ -38,7 +101,9 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 
+// ==========================================
 // Three.js 3D Background
+// ==========================================
 let scene, camera, renderer, hearts = [];
 
 function init() {
@@ -46,7 +111,6 @@ function init() {
 
     // Scene setup
     scene = new THREE.Scene();
-    // Soft pink fog for depth
     scene.fog = new THREE.FogExp2(0xffe6ea, 0.002);
 
     // Camera setup
@@ -56,10 +120,10 @@ function init() {
     // Renderer setup
     renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
     renderer.setSize(window.innerWidth, window.innerHeight);
-    renderer.setPixelRatio(window.devicePixelRatio);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     container.appendChild(renderer.domElement);
 
-    // Create hearts
+    // Create heart shape
     const heartShape = new THREE.Shape();
     const x = 0, y = 0;
     heartShape.moveTo(x + 5, y + 5);
@@ -81,32 +145,39 @@ function init() {
 
     const geometry = new THREE.ExtrudeGeometry(heartShape, extrudeSettings);
 
-    // Make it cute pink
-    const material = new THREE.MeshPhongMaterial({
-        color: 0xff6b81,
-        shininess: 100,
-        specular: 0xffffff
-    });
+    // Multiple colors for hearts
+    const colors = [0xff6b81, 0xff9eb5, 0xff4757, 0xffcccc, 0xff8a9e];
 
-    // Add a point light to make them shine
+    // Lights
     const pointLight = new THREE.PointLight(0xffffff, 1);
     pointLight.position.set(200, 200, 200);
     scene.add(pointLight);
 
-    for (let i = 0; i < 50; i++) {
+    const pointLight2 = new THREE.PointLight(0xff9eb5, 0.8);
+    pointLight2.position.set(-200, -200, 100);
+    scene.add(pointLight2);
+
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+    scene.add(ambientLight);
+
+    for (let i = 0; i < 60; i++) {
+        const color = colors[Math.floor(Math.random() * colors.length)];
+        const material = new THREE.MeshPhongMaterial({
+            color: color,
+            shininess: 100,
+            specular: 0xffffff
+        });
+
         const heart = new THREE.Mesh(geometry, material);
 
-        // Random position
         heart.position.x = (Math.random() - 0.5) * 2000;
         heart.position.y = (Math.random() - 0.5) * 2000;
         heart.position.z = (Math.random() - 0.5) * 2000;
 
-        // Random rotation
         heart.rotation.x = Math.random() * 2 * Math.PI;
         heart.rotation.y = Math.random() * 2 * Math.PI;
-        heart.rotation.z = Math.random() * 2 * Math.PI; // Flip it upright mostly? Nah, random is chaos cute
+        heart.rotation.z = Math.random() * 2 * Math.PI;
 
-        // Random scale
         const scale = Math.random() * 2 + 0.5;
         heart.scale.set(scale, scale, scale);
 
@@ -118,99 +189,22 @@ function init() {
         });
     }
 
-    // Lights (even though basic material doesn't need them, good habit)
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
-    scene.add(ambientLight);
-
-    // --- Add Floating Heart-Shaped Photos ---
-    const photoUrls = [
-        './images/DSCF0502.JPG',
-        './images/DSCF1218.JPG',
-        './images/IMG_4631.JPG'
-    ];
-
-    const loader = new THREE.TextureLoader();
-
-    // Create a flat heart shape for photos
-    const photoHeartShape = new THREE.Shape();
-    const px = 0, py = 0;
-    photoHeartShape.moveTo(px + 5, py + 5);
-    photoHeartShape.bezierCurveTo(px + 5, py + 5, px + 4, py, px, py);
-    photoHeartShape.bezierCurveTo(px - 6, py, px - 6, py + 7, px - 6, py + 7);
-    photoHeartShape.bezierCurveTo(px - 6, py + 11, px - 3, py + 15.4, px + 5, py + 19);
-    photoHeartShape.bezierCurveTo(px + 12, py + 15.4, px + 16, py + 11, px + 16, py + 7);
-    photoHeartShape.bezierCurveTo(px + 16, py + 7, px + 16, py, px + 10, py);
-    photoHeartShape.bezierCurveTo(px + 7, py, px + 5, py + 5, px + 5, py + 5);
-
-    photoUrls.forEach(url => {
-        loader.load(url, (texture) => {
-            // Adjust UV mapping to fit the texture inside the heart shape
-            const geometry = new THREE.ShapeGeometry(photoHeartShape);
-
-            // Calculate bounding box to normalize UVs
-            geometry.computeBoundingBox();
-            const max = geometry.boundingBox.max;
-            const min = geometry.boundingBox.min;
-            const size = new THREE.Vector3().subVectors(max, min);
-
-            const uvAttribute = geometry.attributes.uv;
-            for (let i = 0; i < uvAttribute.count; i++) {
-                const x = geometry.attributes.position.getX(i);
-                const y = geometry.attributes.position.getY(i);
-                const u = (x - min.x) / size.x;
-                const v = (y - min.y) / size.y;
-                uvAttribute.setXY(i, u, v);
-            }
-            geometry.attributes.uv.needsUpdate = true;
-
-            const photoMaterial = new THREE.MeshBasicMaterial({
-                map: texture,
-                side: THREE.DoubleSide
-            });
-
-            // Increase quantity: 15 of each photo
-            for (let i = 0; i < 15; i++) {
-                const photo = new THREE.Mesh(geometry, photoMaterial);
-
-                // Need a wider spread
-                photo.position.x = (Math.random() - 0.5) * 2000;
-                photo.position.y = (Math.random() - 0.5) * 2000;
-                photo.position.z = (Math.random() - 0.5) * 2000;
-
-                photo.rotation.x = Math.random() * Math.PI;
-                photo.rotation.y = Math.random() * Math.PI;
-                photo.rotation.z = Math.PI; // Flip to be upright generally
-
-                const scale = Math.random() * 2 + 1.5;
-                photo.scale.set(scale, scale, scale);
-
-                scene.add(photo);
-                hearts.push({
-                    mesh: photo,
-                    speed: Math.random() * 0.4 + 0.2,
-                    rotationSpeed: Math.random() * 0.015
-                });
-            }
-        });
-    });
-
     // --- Magic Particles System ---
     const particlesGeometry = new THREE.BufferGeometry();
-    const particleCount = 1000;
-
+    const particleCount = 800;
     const posArray = new Float32Array(particleCount * 3);
 
     for (let i = 0; i < particleCount * 3; i++) {
-        posArray[i] = (Math.random() - 0.5) * 2500; // Spread wide
+        posArray[i] = (Math.random() - 0.5) * 2500;
     }
 
     particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
 
     const particlesMaterial = new THREE.PointsMaterial({
-        size: 4,
+        size: 3,
         color: 0xffffff,
         transparent: true,
-        opacity: 0.8,
+        opacity: 0.6,
         blending: THREE.AdditiveBlending
     });
 
@@ -232,25 +226,21 @@ function onWindowResize() {
 function animate(particlesMesh) {
     requestAnimationFrame(() => animate(particlesMesh));
 
-    // Animate hearts & photos
     hearts.forEach(item => {
         item.mesh.position.y += item.speed;
         item.mesh.rotation.y += item.rotationSpeed;
         item.mesh.rotation.z += item.rotationSpeed;
 
-        // Reset if goes too high
         if (item.mesh.position.y > 1000) {
             item.mesh.position.y = -1000;
         }
     });
 
-    // Animate Particles
     if (particlesMesh) {
         particlesMesh.rotation.y += 0.0005;
         particlesMesh.rotation.x += 0.0002;
     }
 
-    // Gentle camera movement
     const time = Date.now() * 0.0005;
     camera.position.x += (Math.cos(time) * 10 - camera.position.x) * 0.05;
     camera.position.y += (Math.sin(time) * 10 - camera.position.y) * 0.05;

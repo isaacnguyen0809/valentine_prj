@@ -7,6 +7,10 @@
     --glass-border: rgba(255, 255, 255, 0.4);
 }
 
+* {
+    box-sizing: border-box;
+}
+
 body {
     margin: 0;
     padding: 0;
@@ -22,9 +26,65 @@ body {
     left: 0;
     width: 100%;
     height: 100%;
-    z-index: -1;
+    z-index: 0;
 }
 
+/* ===================== */
+/* FLOATING HEART PHOTOS */
+/* ===================== */
+.floating-photos {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+    pointer-events: none;
+    overflow: hidden;
+}
+
+.heart-photo {
+    position: absolute;
+    left: var(--left, 50%);
+    bottom: -150px;
+    width: 100px;
+    height: 100px;
+    animation: floatUp var(--duration, 12s) var(--delay, 0s) infinite linear;
+    opacity: 0.85;
+    filter: drop-shadow(0 4px 12px rgba(255, 107, 129, 0.5));
+}
+
+.heart-photo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    clip-path: path('M50 88 C25 65, 0 45, 0 28 C0 10, 12 0, 25 0 C38 0, 45 8, 50 20 C55 8, 62 0, 75 0 C88 0, 100 10, 100 28 C100 45, 75 65, 50 88Z');
+    border-radius: 0;
+}
+
+@keyframes floatUp {
+    0% {
+        transform: translateY(0) rotate(0deg) scale(0.8);
+        opacity: 0;
+    }
+
+    10% {
+        opacity: 0.85;
+    }
+
+    90% {
+        opacity: 0.85;
+    }
+
+    100% {
+        transform: translateY(-120vh) rotate(360deg) scale(1.1);
+        opacity: 0;
+    }
+}
+
+/* ================ */
+/* CONTENT OVERLAY  */
+/* ================ */
 .content-overlay {
     position: relative;
     z-index: 10;
@@ -68,6 +128,14 @@ h1 {
     margin-bottom: 0.5rem;
 }
 
+header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    width: 100%;
+}
+
 .subtitle {
     font-size: 1.5rem;
     margin-bottom: 2rem;
@@ -79,6 +147,9 @@ h1 {
     color: red;
 }
 
+/* ============ */
+/* GLASS CARDS  */
+/* ============ */
 .glass-effect {
     background: var(--glass-bg);
     backdrop-filter: blur(10px);
@@ -89,11 +160,21 @@ h1 {
     box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
 }
 
+main {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+}
+
 .card {
     max-width: 500px;
     width: 90%;
     margin-bottom: 20px;
     transition: transform 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
 .card:hover {
@@ -104,6 +185,19 @@ h1 {
     font-size: 1.2rem;
     line-height: 1.6;
     margin-bottom: 1.5rem;
+    text-align: center;
+}
+
+/* ============ */
+/* BUTTONS      */
+/* ============ */
+.buttons {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    min-height: 80px;
+    position: relative;
 }
 
 .cute-btn {
@@ -114,27 +208,60 @@ h1 {
     color: white;
     font-family: 'Nunito', sans-serif;
     font-weight: 700;
-    font-size: 1.2rem;
+    font-size: 1.1rem;
     cursor: pointer;
     box-shadow: 0 4px 15px rgba(255, 107, 129, 0.4);
-    transition: all 0.3s ease;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    position: relative;
+    z-index: 20;
+    white-space: nowrap;
 }
 
 .cute-btn:hover {
-    transform: scale(1.05);
     box-shadow: 0 6px 20px rgba(255, 107, 129, 0.6);
 }
 
+.cute-btn.caught {
+    animation: pulse 0.6s ease;
+    background: linear-gradient(45deg, #ff4757, #ff6b81);
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.15);
+    }
+
+    100% {
+        transform: scale(1);
+    }
+}
+
+/* ================== */
+/* LOCATION CARD      */
+/* ================== */
 .hidden {
-    display: none;
+    display: none !important;
     opacity: 0;
 }
 
 .location-card {
-    max-width: 600px;
-    width: 95%;
+    max-width: 500px;
+    width: 90%;
     margin-top: 20px;
     animation: slideUp 0.5s ease forwards;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+.location-card h2 {
+    text-align: center;
+    width: 100%;
 }
 
 @keyframes slideUp {
@@ -154,11 +281,23 @@ h1 {
     overflow: hidden;
     margin: 15px 0;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    width: 100%;
+}
+
+.map-container iframe {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+}
+
+.address-details {
+    text-align: center;
+    width: 100%;
 }
 
 .address-details h3 {
     color: var(--primary-color);
-    font-family: 'Mali', cursive;
+    font-family: 'Nunito', sans-serif;
     font-weight: 700;
     margin-bottom: 5px;
 }
@@ -187,17 +326,34 @@ h1 {
     color: white;
 }
 
-/* Mobile responsive adjustments */
+/* ===================== */
+/* MOBILE RESPONSIVE     */
+/* ===================== */
 @media (max-width: 600px) {
     h1 {
-        font-size: 2.5rem;
+        font-size: 2rem;
     }
 
     .subtitle {
-        font-size: 1.2rem;
+        font-size: 1rem;
     }
 
     .card {
+        padding: 1.5rem;
+    }
+
+    .cute-btn {
+        font-size: 1rem;
+        padding: 12px 24px;
+    }
+
+    .heart-photo {
+        width: 70px;
+        height: 70px;
+    }
+
+    .location-card {
+        width: 95%;
         padding: 1.5rem;
     }
 }
