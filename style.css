@@ -233,8 +233,8 @@ main {
     font-size: 1.1rem;
     cursor: pointer;
     box-shadow: 0 4px 15px rgba(255, 107, 129, 0.4);
-    transition: left 0.4s cubic-bezier(0.34, 1.56, 0.64, 1),
-        top 0.4s cubic-bezier(0.34, 1.56, 0.64, 1),
+    transition: left 0.7s cubic-bezier(0.25, 1, 0.5, 1),
+        top 0.7s cubic-bezier(0.25, 1, 0.5, 1),
         transform 0.3s ease,
         box-shadow 0.3s ease;
     position: relative;

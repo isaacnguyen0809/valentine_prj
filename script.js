@@ -17,22 +17,33 @@ document.addEventListener('DOMContentLoaded', () => {
         if (gameComplete) return;
 
         if (runawayCount < maxRunaway) {
-            // Move to a random position within the viewport
+            // Get current position
+            const rect = revealBtn.getBoundingClientRect();
+            const curX = rect.left;
+            const curY = rect.top;
+
             const viewW = window.innerWidth;
             const viewH = window.innerHeight;
             const btnW = revealBtn.offsetWidth;
             const btnH = revealBtn.offsetHeight;
 
-            // Keep within safe bounds
-            const maxX = viewW - btnW - 20;
-            const maxY = viewH - btnH - 20;
+            // Move relative to current position (gentle dodge)
+            const minDist = 120;
+            const maxDist = 200;
+            const angle = Math.random() * Math.PI * 2;
+            const distance = minDist + Math.random() * (maxDist - minDist);
 
-            const randX = Math.floor(Math.random() * maxX);
-            const randY = Math.floor(Math.random() * maxY);
+            let newX = curX + Math.cos(angle) * distance;
+            let newY = curY + Math.sin(angle) * distance;
+
+            // Clamp within viewport with padding
+            const padding = 20;
+            newX = Math.max(padding, Math.min(newX, viewW - btnW - padding));
+            newY = Math.max(padding, Math.min(newY, viewH - btnH - padding));
 
             revealBtn.style.position = 'fixed';
-            revealBtn.style.left = randX + 'px';
-            revealBtn.style.top = randY + 'px';
+            revealBtn.style.left = newX + 'px';
+            revealBtn.style.top = newY + 'px';
             revealBtn.style.transform = 'none';
             revealBtn.style.zIndex = '9999';
 
