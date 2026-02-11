@@ -36,10 +36,13 @@ document.addEventListener('DOMContentLoaded', () => {
             let newX = curX + Math.cos(angle) * distance;
             let newY = curY + Math.sin(angle) * distance;
 
-            // Clamp within viewport with padding
-            const padding = 20;
-            newX = Math.max(padding, Math.min(newX, viewW - btnW - padding));
-            newY = Math.max(padding, Math.min(newY, viewH - btnH - padding));
+            // Clamp within safe visible area
+            // Extra bottom padding for iOS safe area / browser chrome
+            const paddingX = 30;
+            const paddingTop = 60;
+            const paddingBottom = 100;
+            newX = Math.max(paddingX, Math.min(newX, viewW - btnW - paddingX));
+            newY = Math.max(paddingTop, Math.min(newY, viewH - btnH - paddingBottom));
 
             revealBtn.style.position = 'fixed';
             revealBtn.style.left = newX + 'px';
