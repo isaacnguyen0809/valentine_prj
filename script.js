@@ -27,22 +27,17 @@ document.addEventListener('DOMContentLoaded', () => {
             const btnW = revealBtn.offsetWidth;
             const btnH = revealBtn.offsetHeight;
 
-            // Move relative to current position (gentle dodge)
-            const minDist = 120;
-            const maxDist = 200;
-            const angle = Math.random() * Math.PI * 2;
-            const distance = minDist + Math.random() * (maxDist - minDist);
-
-            let newX = curX + Math.cos(angle) * distance;
-            let newY = curY + Math.sin(angle) * distance;
-
-            // Clamp within safe visible area
-            // Extra bottom padding for iOS safe area / browser chrome
+            // Move to random position in the TOP area only
             const paddingX = 30;
-            const paddingTop = 60;
-            const paddingBottom = 100;
-            newX = Math.max(paddingX, Math.min(newX, viewW - btnW - paddingX));
-            newY = Math.max(paddingTop, Math.min(newY, viewH - btnH - paddingBottom));
+            const maxX = viewW - btnW - paddingX;
+            // Only allow Y in top half of viewport
+            const maxY = (viewH * 0.5) - btnH;
+
+            const randX = paddingX + Math.floor(Math.random() * (maxX - paddingX));
+            const randY = 30 + Math.floor(Math.random() * Math.max(0, maxY - 30));
+
+            let newX = randX;
+            let newY = randY;
 
             revealBtn.style.position = 'fixed';
             revealBtn.style.left = newX + 'px';
