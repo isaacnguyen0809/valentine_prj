@@ -6,79 +6,98 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // ==========================================
     // Mini Game: Runaway Button
-    // Works on BOTH desktop (mouseover) and mobile (touchstart/click)
+    // Desktop: hover to dodge | Mobile: tap to dodge
+    // After 4 dodges → return to original position
     // ==========================================
     let runawayCount = 0;
-    const maxRunaway = 5;
+    const maxRunaway = 4;
     let gameComplete = false;
-    const originalText = revealBtn.innerText;
+    let isMoving = false;
+
+    const messages = [
+        "Hehe, bắt được hông? 😜",
+        "Nhanh tay lên nào! 🏃‍♀️",
+        "Gần được rồi...! 💨",
+        "Cố lên nào vợ ơi! 💪"
+    ];
+
+    function getSafeArea() {
+        const viewW = window.innerWidth;
+        const viewH = window.innerHeight;
+        const btnW = revealBtn.offsetWidth;
+        const btnH = revealBtn.offsetHeight;
+
+        // Hard cap: button stays in top ~40% of viewport
+        // On iPhone 15 Pro Max (932px height), maxY ≈ 350px
+        const maxYLimit = Math.min(viewH * 0.4, 350);
+
+        return {
+            minX: 20,
+            maxX: viewW - btnW - 20,
+            minY: 30,
+            maxY: maxYLimit
+        };
+    }
 
     function runAway() {
-        if (gameComplete) return;
+        if (gameComplete || isMoving) return;
+        isMoving = true;
 
-        if (runawayCount < maxRunaway) {
-            // Get current position
-            const rect = revealBtn.getBoundingClientRect();
-            const curX = rect.left;
-            const curY = rect.top;
+        runawayCount++;
 
-            const viewW = window.innerWidth;
-            const viewH = window.innerHeight;
-            const btnW = revealBtn.offsetWidth;
-            const btnH = revealBtn.offsetHeight;
+        if (runawayCount <= maxRunaway) {
+            const safe = getSafeArea();
 
-            // Move to random position in the TOP area only
-            const paddingX = 30;
-            const maxX = viewW - btnW - paddingX;
-            // Only allow Y in top half of viewport
-            const maxY = (viewH * 0.5) - btnH;
+            // Pick random position within safe top area
+            const newX = safe.minX + Math.floor(Math.random() * (safe.maxX - safe.minX));
+            const newY = safe.minY + Math.floor(Math.random() * (safe.maxY - safe.minY));
 
-            const randX = paddingX + Math.floor(Math.random() * (maxX - paddingX));
-            const randY = 30 + Math.floor(Math.random() * Math.max(0, maxY - 30));
+            // First dodge: anchor at current position first to avoid layout jump
+            if (runawayCount === 1) {
+                const rect = revealBtn.getBoundingClientRect();
+                revealBtn.style.transition = 'none';
+                revealBtn.style.position = 'fixed';
+                revealBtn.style.left = rect.left + 'px';
+                revealBtn.style.top = rect.top + 'px';
+                revealBtn.style.zIndex = '9999';
 
-            let newX = randX;
-            let newY = randY;
+                // Force reflow, then animate to new position
+                revealBtn.offsetHeight;
+                revealBtn.style.transition = '';
+            }
 
             revealBtn.style.position = 'fixed';
             revealBtn.style.left = newX + 'px';
             revealBtn.style.top = newY + 'px';
-            revealBtn.style.transform = 'none';
             revealBtn.style.zIndex = '9999';
 
-            runawayCount++;
-
-            // Show teasing text
-            const messages = [
-                "Hehe, bắt được hông? 😜",
-                "Nhanh tay lên nào! 🏃‍♀️",
-                "Gần được rồi...! 💨",
-                "Chậm quá đi! 🐢",
-                "Cố lên nào vợ ơi! 💪"
-            ];
             revealBtn.innerText = messages[runawayCount - 1] || "Hehe 😜";
+
+            // Prevent rapid-fire triggers
+            setTimeout(() => { isMoving = false; }, 750);
         }
 
-        // Check if game is now complete
+        // Done dodging → return to original position
         if (runawayCount >= maxRunaway) {
-            gameComplete = true;
-            revealBtn.style.position = 'static';
-            revealBtn.style.left = '';
-            revealBtn.style.top = '';
-            revealBtn.style.transform = '';
-            revealBtn.style.zIndex = '';
-            revealBtn.innerText = "Giờ bấm được rồi đó vợ! 🤣❤️";
-            revealBtn.classList.add('caught');
+            setTimeout(() => {
+                gameComplete = true;
+                revealBtn.style.position = '';
+                revealBtn.style.left = '';
+                revealBtn.style.top = '';
+                revealBtn.style.zIndex = '';
+                revealBtn.innerText = "Giờ bấm được rồi đó vợ! 🤣❤️";
+                revealBtn.classList.add('caught');
+                isMoving = false;
+            }, 1000);
         }
     }
 
     // Desktop: mouseover triggers runaway
-    revealBtn.addEventListener('mouseover', (e) => {
-        if (!gameComplete) {
-            runAway();
-        }
+    revealBtn.addEventListener('mouseover', () => {
+        if (!gameComplete) runAway();
     });
 
-    // Mobile: touchstart triggers runaway (before click)
+    // Mobile: touchstart triggers runaway
     revealBtn.addEventListener('touchstart', (e) => {
         if (!gameComplete) {
             e.preventDefault();
@@ -91,8 +110,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!gameComplete) {
             e.preventDefault();
             e.stopPropagation();
-            // On desktop click without hover (rare), also run away
-            runAway();
             return;
         }
 
