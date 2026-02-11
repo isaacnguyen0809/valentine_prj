@@ -124,8 +124,9 @@ function init() {
 
     // --- Add Floating Heart-Shaped Photos ---
     const photoUrls = [
-        'https://images.unsplash.com/photo-1518199266791-5375a83190b7?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60',
-        'https://images.unsplash.com/photo-1516589178581-6cd7833ae3b2?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60'
+        './images/DSCF0502.JPG',
+        './images/DSCF1218.JPG',
+        './images/IMG_4631.JPG'
     ];
 
     const loader = new THREE.TextureLoader();
