@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Be My Valentine?</title>
+    <link rel="stylesheet" href="style.css">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@400;700&family=Mali:wght@400;700&family=Pacifico&family=Nunito:wght@400;700&display=swap"
+        rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+</head>
+
+<body>
+    <div id="canvas-container"></div>
+
+    <div class="content-overlay">
+        <header>
+            <h1 class="bounce">Happy Valentine's Day! <span class="heart">❤️</span></h1>
+            <p class="subtitle">Gửi đến Sữa pé pỏng mà xồng iu nhất trên đời...</p>
+        </header>
+
+        <main>
+            <div class="card glass-effect">
+                <p class="message">
+                    Lâu ròi mình không có ăn chỗ nào vibe hẹn hò với nhau <br>
+                    Nên hôm nay anh đã chọn 1 chỗ
+                </p>
+                <div class="buttons">
+                    <button id="reveal-location-btn" class="cute-btn">
+                        Ấn vô để tìm địa điểm nèo vợ 🤫
+                    </button>
+                </div>
+            </div>
+
+            <div id="location-reveal" class="location-card glass-effect hidden">
+                <h2>📍 Dinner Tonight</h2>
+                <div class="map-container">
+                    <!-- Updated Map for Woomaster Trung Hòa -->
+                    <iframe
+                        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3724.399910193094!2d105.79722821122726!3d21.016678788111818!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3135ab2ca3987437%3A0x2904cc522271166d!2sWOOMASTER%20Trung%20H%C3%B2a!5e0!3m2!1svi!2s!4v1770794571140!5m2!1svi!2s"
+                        width="600" height="450" style="border:0;" allowfullscreen="" loading="lazy"
+                        referrerpolicy="no-referrer-when-downgrade"></iframe>
+                </div>
+                <div class="address-details">
+                    <h3>Woomaster Trung Hòa</h3>
+                    <p>122 P.Trung Hòa, Yên Hoà, Cầu Giấy, Hà Nội</p>
+                    <p class="note">(Xồng book bàn lúc 19:45 rồi nha! 😘)</p>
+                </div>
+                <button id="close-location-btn" class="close-btn">Đóng lại</button>
+            </div>
+        </main>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
